@@ -52,14 +52,14 @@ export class PaymentPage {
     await this.actions.fill(this.cardFirstName, firstName);
     await this.actions.fill(this.cardLastName, lastName);
 
-    // Deep-nested Stripe iFrame resolution
-    const stripeFrame = this.page.locator('iframe[name="tokenFrame"]').contentFrame().locator('iframe[name="tokenframe"]').contentFrame();
+    // CardConnect token iFrame resolution using Playwright FrameLocator for auto-waiting
+    const tokenFrame = this.page.frameLocator('iframe[name="tokenFrame"]');
     
     // Inject secure card details
-    await stripeFrame.getByRole('textbox', { name: 'Credit Card Number' }).fill('4111111111111111');
-    await stripeFrame.getByLabel('Expiration Month').selectOption('1');
-    await stripeFrame.getByLabel('Expiration Year').selectOption('2030');
-    await stripeFrame.getByRole('textbox', { name: 'Card Verification Value' }).fill('345');
+    await tokenFrame.getByPlaceholder('Credit/Debit Card Number').or(tokenFrame.getByRole('textbox', { name: /Credit.*Card/i })).fill('4111111111111111');
+    await tokenFrame.getByLabel('Expiration Month').or(tokenFrame.getByRole('combobox', { name: 'Expiration Month' })).selectOption('01');
+    await tokenFrame.getByLabel('Expiration Year').or(tokenFrame.getByRole('combobox', { name: 'Expiration Year' })).selectOption('2030');
+    await tokenFrame.getByPlaceholder('CVV').or(tokenFrame.getByRole('textbox', { name: 'Card Verification Value' })).fill('345');
 
     // Select billing address profile (using more generic locators to accommodate our dynamic address prefixes)
     const billingPanel = this.page.locator('div').filter({ hasText: 'Payment' });
