@@ -25,13 +25,6 @@ test.describe('Enterprise Registration Workflow', () => {
       await page.getByRole('button', { name: 'LOG IN' }).dispatchEvent('click');
     });
     
-    const errorMsg = page.getByText('Invalid login or password');
-
-    if (await errorMsg.isVisible()) {
-        throw new Error(
-            'Login Failed: Invalid username or password. Authentication was unsuccessful.'
-        );
-    }
     await expect(page).toHaveURL(/dashboard/);
   });
 
